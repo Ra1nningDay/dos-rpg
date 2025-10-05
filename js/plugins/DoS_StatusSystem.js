@@ -628,23 +628,28 @@
     c.restore();
   };
 
-  // ===== helper: เส้นคั่นหัวข้อ =====
+  // ===== helper: Line =====
   Window_StatusParams.prototype.drawSectionTitle = function (text, y) {
-    const pad = 40;
+    const padX = 20;
+    const lineGap = 4;
+    const afterLineGap = 8;
+
     this.changeTextColor(ColorManager.systemColor());
     this.contents.fontBold = true;
-    this.drawText(text, pad, y, this.innerWidth - pad * 2, "left");
+    this.drawText(text, padX, y, this.innerWidth - padX * 2, "left");
     this.contents.fontBold = false;
-    y += this.lineHeight() - 6;
+
+    const lineY = y + this.lineHeight() - lineGap;
     const c = this.contents.context;
     c.save();
     c.fillStyle = DoS_UI.sectionLine;
-    c.fillRect(pad, y, this.innerWidth - pad * 2, 2);
+    c.fillRect(padX, lineY, this.innerWidth - padX * 2, 2);
     c.restore();
-    return y + 14;
+
+    return lineY + afterLineGap;
   };
 
-  // ===== helper: เกจมีกรอบ + ตัวเลข =====
+  // ===== helper:  =====
   Window_StatusParams.prototype.drawGaugeFancy = function (
     x,
     y,
@@ -733,11 +738,21 @@
   Window_StatusParams.prototype.initialize = function (rect) {
     Window_Selectable.prototype.initialize.call(this, rect);
     this.activate();
+
     // ค่าแสดงผล (ไหลไปหาค่าจริง)
     this._dispFatigue = $gameSystem.getFatigue();
     this._dispCorruption = $gameSystem.getCorruption();
     this._dispHope = $gameSystem.getHope();
     this.refresh();
+  };
+
+  Scene_StatusParams.prototype.statusParamsWindowRect = function () {
+    const marginTop = 60; // ← ปรับได้ตามต้องการ (พิกเซล)
+    const ww = Graphics.boxWidth;
+    const wh = Graphics.boxHeight - marginTop;
+    const wx = 0;
+    const wy = marginTop;
+    return new Rectangle(wx, wy, ww, wh);
   };
 
   Window_StatusParams.prototype.maxItems = function () {
@@ -770,11 +785,15 @@
     this.drawStatusParameters();
   };
 
+  Window_StatusParams.prototype.maxItems = function () {
+    return 0; // ไม่มี item ให้เลือก
+  };
+
   Window_StatusParams.prototype.drawStatusParameters = function () {
-    const pad = 40;
+    const pad = 20;
     let y = pad;
 
-    y = this.drawSectionTitle("Character Status Parameters", y + 2);
+    y = this.drawSectionTitle("Character Status Parameters", y + 8);
 
     // แถวสถานะทั้งสาม
     y = this.drawRow(
